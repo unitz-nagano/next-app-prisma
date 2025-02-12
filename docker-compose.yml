@@ -1,0 +1,21 @@
+services:
+  db:
+    image: mariadb:10.5.23
+    restart: always
+    environment:
+      # 管理者(ユーザー名はroot)のパスワード
+      MYSQL_ROOT_PASSWORD: rootpass
+      # デフォルトのDB
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      # デフォルトの一般ユーザー
+      MYSQL_USER: ${DATABASE_USER}
+      # デフォルトの一般ユーザーのパスワード
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d
+
+volumes:
+  mysql-data:
