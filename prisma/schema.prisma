@@ -14,15 +14,50 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model Account {
-  user_id   Int    @id @default(autoincrement())
-  type      String
-  full_name String
-  e_mail    String
-  user_type Int
-}
-
 model Test {
   id    Int    @id @default(autoincrement())
   value String
+}
+
+// ユーザー情報一覧テーブル
+model User {
+  id            String    @id @default(cuid())
+  userId        Int       @unique @default(autoincrement())
+  name          String?   @db.VarChar(20)
+  email         String?   @unique
+  image         String?
+  emailVerified DateTime?
+  userType      Int?
+
+  accounts Account[]
+  sessions Session[]
+}
+
+// next-auth が自動的に使う
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+// next-auth が自動的に使う
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
